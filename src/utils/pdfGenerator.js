@@ -211,7 +211,7 @@ export const generateDashboardPDF = async (filteredDashboard,
 
   try {
     // ==================== FETCH REAL DATA FROM GOOGLE SHEETS ====================
-    const SPREADSHEET_ID = "1PV7EKhdGns0Xl9nh4lgZqWTIWXGaFzpSxC2hGA2IB_w";
+    const SPREADSHEET_ID = "1Qzzb5c26yWJdEpsSKXLgqcrwcxehmDhHBdldBETHKpY";
 
     console.log('Fetching data from Google Sheets...');
     const response = await fetch(

@@ -50,8 +50,8 @@ const AdminDashboard = () => {
     "col13", "col2", "col3", "col4", "col5", "col6", "col7",
     "col8", "col9", "col10", "col11", "col12", "col14", "col15"
   ];
-  const SPREADSHEET_ID = "1PV7EKhdGns0Xl9nh4lgZqWTIWXGaFzpSxC2hGA2IB_w";
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6v_u383UiNmzJUG_VumT8Lq2gMPBxeZWAwtJas_K8ST7QwilMDu6YWuAqZNPbJxkF/exec";
+  const SPREADSHEET_ID = "1Qzzb5c26yWJdEpsSKXLgqcrwcxehmDhHBdldBETHKpY";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytIRV-DZXklx1lhpszAvIEWd1rmNjN9U5M1UmAfK8r2XiDi646W2fVYLS__3DS2aa8_w/exec";
   const DEPARTMENT_CHART_ID = "1932717403";
 
   // Generate the department chart URL

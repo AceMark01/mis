@@ -79,9 +79,9 @@ const EmployeesTable = ({ filterTasks, dynamicHeaders }) => {
   const [isSaving, setIsSaving] = useState(false);
 
   // Configuration - exactly as provided
-  const scriptUrl = "https://script.google.com/macros/s/AKfycbz6v_u383UiNmzJUG_VumT8Lq2gMPBxeZWAwtJas_K8ST7QwilMDu6YWuAqZNPbJxkF/exec";
+  const scriptUrl = "https://script.google.com/macros/s/AKfycbytIRV-DZXklx1lhpszAvIEWd1rmNjN9U5M1UmAfK8r2XiDi646W2fVYLS__3DS2aa8_w/exec";
   const sheetName = "For Records";
-  // Sheet ID: 1PV7EKhdGns0Xl9nh4lgZqWTIWXGaFzpSxC2hGA2IB_w (configured in Apps Script)
+  // Sheet ID: 1Qzzb5c26yWJdEpsSKXLgqcrwcxehmDhHBdldBETHKpY (configured in Apps Script)
 
   const filteredHeaders = dynamicHeaders.filter(
     (header) =>
@@ -95,7 +95,7 @@ const EmployeesTable = ({ filterTasks, dynamicHeaders }) => {
       const params = new URLSearchParams({
         action: 'getUsers',
         sheetName: sheetName,
-        spreadsheetId: "1PV7EKhdGns0Xl9nh4lgZqWTIWXGaFzpSxC2hGA2IB_w"
+        spreadsheetId: "1Qzzb5c26yWJdEpsSKXLgqcrwcxehmDhHBdldBETHKpY"
       });
 
       console.log('Fetching commitments from:', `${scriptUrl}?${params}`);
@@ -242,7 +242,7 @@ const EmployeesTable = ({ filterTasks, dynamicHeaders }) => {
       const formData = new URLSearchParams();
       formData.append('action', 'insertInSingleColumn');
       formData.append('sheetName', sheetName);
-      formData.append('spreadsheetId', "1PV7EKhdGns0Xl9nh4lgZqWTIWXGaFzpSxC2hGA2IB_w");
+      formData.append('spreadsheetId', "1Qzzb5c26yWJdEpsSKXLgqcrwcxehmDhHBdldBETHKpY");
       formData.append('data', JSON.stringify(submittedData));
 
       console.log("Form data being sent:", formData.toString());

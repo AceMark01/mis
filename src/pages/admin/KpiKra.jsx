@@ -33,7 +33,7 @@ const KpiKra = () => {
   const updateGoogleSheet = async (designation) => {
     try {
       // Method 1: Try with JSONP callback (works better with Google Apps Script)
-      const scriptUrl = "https://script.google.com/macros/s/AKfycbwS2OWy5R3Tlst1Q5ulXGK9bYehR2xtdfP_nGT9mDfAO5G6if0NmRUVbofzECpq5AK_Ng/exec";
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbyc-Phvly57klOOaxwMW8lqqrBTjJ2yIbIA9_gV9YmWr55GhXvab_N_TkrmAqyC-4BJFQ/exec";
 
       // Create form data for POST request
       const params = new URLSearchParams();
@@ -63,7 +63,7 @@ const KpiKra = () => {
       // Method 2: Try with CORS proxy service
       try {
         const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbwS2OWy5R3Tlst1Q5ulXGK9bYehR2xtdfP_nGT9mDfAO5G6if0NmRUVbofzECpq5AK_Ng/exec";
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbyc-Phvly57klOOaxwMW8lqqrBTjJ2yIbIA9_gV9YmWr55GhXvab_N_TkrmAqyC-4BJFQ/exec";
 
         const params = new URLSearchParams();
         params.append("action", "updateCell");
@@ -93,7 +93,7 @@ const KpiKra = () => {
         // Method 3: Use dynamic script tag (JSONP-style)
         return new Promise((resolve) => {
           const callbackName = `jsonp_callback_${Date.now()}`;
-          const scriptUrl = `https://script.google.com/macros/s/AKfycbwS2OWy5R3Tlst1Q5ulXGK9bYehR2xtdfP_nGT9mDfAO5G6if0NmRUVbofzECpq5AK_Ng/exec?action=updateCell&sheetName=Dashboard&row=2&column=1&value=${encodeURIComponent(designation)}&callback=${callbackName}`;
+          const scriptUrl = `https://script.google.com/macros/s/AKfycbyc-Phvly57klOOaxwMW8lqqrBTjJ2yIbIA9_gV9YmWr55GhXvab_N_TkrmAqyC-4BJFQ/exec?action=updateCell&sheetName=Dashboard&row=2&column=1&value=${encodeURIComponent(designation)}&callback=${callbackName}`;
 
           // Create callback function
           window[callbackName] = function (data) {
