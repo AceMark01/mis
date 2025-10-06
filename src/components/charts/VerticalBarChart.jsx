@@ -61,7 +61,7 @@ const VerticalBarChart = ({
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://docs.google.com/spreadsheets/d/1N2u0i7VDR4XRtNlb8_IulnUOCQO9Als5jLzo3ykEf9c/gviz/tq?tqx=out:json&sheet=For Records"
+          "https://docs.google.com/spreadsheets/d/1Qzzb5c26yWJdEpsSKXLgqcrwcxehmDhHBdldBETHKpY/gviz/tq?tqx=out:json&sheet=For Records"
         );
         const text = await response.text();
         const jsonStart = text.indexOf("{");
