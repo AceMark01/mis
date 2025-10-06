@@ -31,6 +31,8 @@ const HalfCircleChart = ({
   };
 
   useEffect(() => {
+    // Replace the entire useEffect's fetchData function with this:
+
     const fetchData = async () => {
       try {
         const response = await fetch(
@@ -43,90 +45,73 @@ const HalfCircleChart = ({
         const data = JSON.parse(jsonData);
 
         if (data?.table?.rows) {
-          const scoreMap = new Map();
+          const scoreData = [];
 
-          // Helper function to get column index from letter (A=0, B=1, etc.)
-          const getColumnIndex = (letter) => letter.charCodeAt(0) - 65;
-
-          data.table.rows.forEach((row) => {
-            // Skip if column D (Target) is 0 or empty (index 3)
-            const columnD = parseFloat(row.c?.[3]?.v) || 0;
-            if (columnD === 0) return;
+         data.table.rows.forEach((row) => {
+  // Column D (Target) - index 3
+  const target = parseFloat(row.c?.[3]?.v) || 0;
+  // Column E (Actual Work Done) - index 4
+  const actualWork = parseFloat(row.c?.[4]?.v) || 0;
+  
+  // Skip if BOTH Target AND Actual Work Done are 0
+  if (target === 0 && actualWork === 0) return;
 
             // Get name from column C (index 2)
             const nameCell = row.c?.[2]?.v;
             let name = "";
-
             if (typeof nameCell === "string") {
               name = nameCell.trim();
             } else if (nameCell && typeof nameCell === "object") {
               name = nameCell.label || "";
             }
-
             if (!name) return;
 
-            // Priority order: F -> G -> I -> J
-            let score = 0;
-            let scoreSource = "";
-            let originalValue = null;
+            // Column F (% Work Not Done) - index 5
+            const workNotDone = parseFloat(row.c?.[5]?.v) || 0;
+            // Column G (% Work Not Done On Time) - index 6
+            const workNotDoneOnTime = parseFloat(row.c?.[6]?.v) || 0;
+            // Column I (Week Pending) - index 8
+            const weekPending = parseFloat(row.c?.[8]?.v) || 0;
 
-            // Check column F (index 5)
-            const columnF = parseFloat(row.c?.[5]?.v) || 0;
-            if (columnF > 0) {
-              score = columnF;
-              scoreSource = "F";
-              originalValue = row.c?.[5]?.v;
-            }
-
-            // If column F has same value as others, check column G (index 6)
-            if (score === 0 || hasSameValue(scoreMap, score, 'F')) {
-              const columnG = parseFloat(row.c?.[6]?.v) || 0;
-              if (columnG > 0) {
-                score = columnG;
-                scoreSource = "G";
-                originalValue = row.c?.[6]?.v;
-              }
-            }
-
-            // If column G has same value or still 0, check column I (index 8)
-            if (score === 0 || hasSameValue(scoreMap, score, 'G')) {
-              const columnI = parseFloat(row.c?.[8]?.v) || 0;
-              if (columnI > 0) {
-                score = columnI;
-                scoreSource = "I";
-                originalValue = row.c?.[8]?.v;
-              }
-            }
-
-            // Final fallback to column J (index 9)
-            if (score === 0 || hasSameValue(scoreMap, score, 'I')) {
-              const columnJ = parseFloat(row.c?.[9]?.v) || 0;
-              if (columnJ > 0) {
-                score = columnJ;
-                scoreSource = "J";
-                originalValue = row.c?.[9]?.v;
-              }
-            }
-
-            if (score > 0) {
-              // Store score with source information
-              scoreMap.set(name, {
-                value: score,
-                source: scoreSource,
-                originalValue: originalValue
-              });
-            }
+            scoreData.push({
+              name,
+              target,
+              actualWork,
+              workNotDone,
+              workNotDoneOnTime,
+              weekPending
+            });
           });
 
-          // Get top 5 entries sorted by score
-          const sortedData = Array.from(scoreMap.entries())
-            .sort((a, b) => b[1].value - a[1].value)
-            .slice(0, 5);
+          // Sort logic:
+          // 1. Target aur Actual Work Done compare (jo complete hai wo pehle)
+          // 2. % Work Not Done (kam value = better)
+          // 3. % Work Not Done On Time (kam value = better)
+          // 4. Week Pending (kam negative value = better, mtlb jiska time kam bacha hai)
 
-          const labels = sortedData.map(([name, data]) => 
-            `${name} (${columnHeaders[data.source]})`
-          );
-          const values = sortedData.map(([, data]) => Math.round(data.value));
+          const sortedData = scoreData.sort((a, b) => {
+            // Step 1: Target vs Actual comparison
+            const aComplete = a.target === a.actualWork ? 1 : 0;
+            const bComplete = b.target === b.actualWork ? 1 : 0;
+            if (aComplete !== bComplete) return bComplete - aComplete;
+
+            // Step 2: % Work Not Done comparison (lower is better)
+            if (a.workNotDone !== b.workNotDone) {
+  return b.workNotDone - a.workNotDone;
+}
+
+            // Step 3: % Work Not Done On Time (lower is better)
+            if (a.workNotDoneOnTime !== b.workNotDoneOnTime) {
+              return b.workNotDoneOnTime - a.workNotDoneOnTime;
+            }
+
+            // Step 4: Week Pending (kam negative = better, e.g., -1 better than -5)
+            return b.weekPending - a.weekPending;
+          }).slice(0, 5);
+window.chartSortedData = sortedData;
+          // Create labels and values for chart
+          const labels = sortedData.map(item => item.name);
+         const values = sortedData.map(item => Math.round(item.workNotDone));
 
           setChartData({
             labels,
@@ -205,15 +190,18 @@ const HalfCircleChart = ({
           },
         },
       },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const label = context.label || "";
-            const value = context.parsed || 0;
-            return `${label}: ${value}`;
-          },
-        },
-      },
+    tooltip: {
+  callbacks: {
+    label: (context) => {
+      const index = context.dataIndex;
+      const item = window.chartSortedData?.[index];
+      if (item) {
+        return `${item.name}: ${item.workNotDone}`;
+      }
+      return `${context.label}: ${context.parsed}`;
+    },
+  },
+},
     },
   };
 
