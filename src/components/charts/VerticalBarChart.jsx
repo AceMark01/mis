@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Bar } from "react-chartjs-2";
@@ -31,13 +29,10 @@ const VerticalBarChart = ({
     "#FACC15", // Yellow
     "#8B5CF6", // Violet
     "#3B82F6", // Blue
-    "#22C55E", // Green
-    "#EC4899"  // Pink (for best performers)
   ],
   maxValue = 100,
 }) => {
 
-  // console.log("data",data)
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [
@@ -50,9 +45,6 @@ const VerticalBarChart = ({
       },
     ],
   });
-
-  
-
 
   const [isLoading, setIsLoading] = useState(true);
   const [sortedData, setSortedData] = useState([]);
@@ -70,86 +62,72 @@ const VerticalBarChart = ({
         const data = JSON.parse(jsonData);
 
         if (data?.table?.rows) {
-          const performanceData = [];
+          const scoreData = [];
 
           data.table.rows.forEach((row) => {
+            // Column D (Target) - index 3
+            const target = parseFloat(row.c?.[3]?.v) || 0;
+            // Column E (Actual Work Done) - index 4
+            const actualWork = parseFloat(row.c?.[4]?.v) || 0;
+            
+            // Skip if BOTH Target AND Actual Work Done are 0
+            if (target === 0 && actualWork === 0) return;
+
             // Get name from column C (index 2)
             const nameCell = row.c?.[2]?.v;
             let name = "";
-
             if (typeof nameCell === "string") {
               name = nameCell.trim();
             } else if (nameCell && typeof nameCell === "object") {
               name = nameCell.label || "";
             }
-
             if (!name) return;
 
-            // Get target from column D (index 3)
-            const columnD = row.c?.[3]?.v;
-            const target = typeof columnD === "number" ? columnD : parseFloat(columnD) || 0;
-            
-            // Skip if target is 0
-            if (target === 0) return;
+            // Column F (% Work Not Done) - index 5
+            const workNotDone = parseFloat(row.c?.[5]?.v) || 0;
+            // Column G (% Work Not Done On Time) - index 6
+            const workNotDoneOnTime = parseFloat(row.c?.[6]?.v) || 0;
+            // Column I (Week Pending) - index 8
+            const weekPending = parseFloat(row.c?.[8]?.v) || 0;
 
-            // Get work done from column F (index 5)
-            const columnF = row.c?.[5]?.v;
-            const workDone = typeof columnF === "number" ? columnF : parseFloat(columnF) || 0;
-
-            // Get column G value (index 6) - for tie-breaking
-            const columnG = row.c?.[6]?.v;
-            const scoreG = typeof columnG === "number" ? columnG : parseFloat(columnG) || 0;
-
-            // Get pending work from column I (index 8) - for tie-breaking
-            const columnI = row.c?.[8]?.v;
-            const pendingWork = typeof columnI === "number" ? columnI : parseFloat(columnI) || 0;
-
-            // Get column J value (index 9) - for final tie-breaking
-            const columnJ = row.c?.[9]?.v;
-            const scoreJ = typeof columnJ === "number" ? columnJ : parseFloat(columnJ) || 0;
-
-            // Calculate performance ratio (work done / target)
-            const performanceRatio = workDone / target;
-
-            performanceData.push({
+            scoreData.push({
               name,
               target,
-              workDone,
-              performanceRatio,
-              scoreG,
-              pendingWork,
-              scoreJ,
-              displayValue: Math.round(performanceRatio * 100)
+              actualWork,
+              workNotDone,
+              workNotDoneOnTime,
+              weekPending
             });
           });
 
-          // Sort based on priority logic
-          const sorted = performanceData.sort((a, b) => {
-            // Primary: Compare performance ratio (ascending - worse performers first)
-            if (a.performanceRatio !== b.performanceRatio) {
-              return a.performanceRatio - b.performanceRatio;
+          // SORTING LOGIC - Column F me jiska negative me jyada value hai wo worst (lowest score)
+          const sorted = scoreData.sort((a, b) => {
+            // Step 1: Target vs Actual comparison (incomplete wale pehle)
+            const aComplete = a.target === a.actualWork ? 1 : 0;
+            const bComplete = b.target === b.actualWork ? 1 : 0;
+            if (aComplete !== bComplete) return aComplete - bComplete;
+
+            // Step 2: % Work Not Done - jiska jyada negative hai wo pehle (worst first)
+            // Example: -50 is worse than -20, so -50 should come first
+            if (a.workNotDone !== b.workNotDone) {
+              return a.workNotDone - b.workNotDone; // ascending (more negative first)
             }
 
-            // Tie-breaker 1: Column G - more negative score goes higher
-            if (a.scoreG !== b.scoreG) {
-              return a.scoreG - b.scoreG;
+            // Step 3: % Work Not Done On Time (HIGHER is worse, so descending)
+            if (a.workNotDoneOnTime !== b.workNotDoneOnTime) {
+              return b.workNotDoneOnTime - a.workNotDoneOnTime;
             }
 
-            // Tie-breaker 2: Column I - more pending work goes higher
-            if (a.pendingWork !== b.pendingWork) {
-              return b.pendingWork - a.pendingWork;
-            }
-
-            // Tie-breaker 3: Column J - lower value goes higher
-            return a.scoreJ - b.scoreJ;
-          }).slice(0, 7);
+            // Step 4: Week Pending (LOWER negative = worse, e.g., -5 worse than -1)
+            return b.weekPending - a.weekPending;
+          }).slice(0, 5); // Only top 5
 
           setSortedData(sorted);
 
           const labels = sorted.map(item => item.name);
           // Create bars where worst performer gets tallest bar
           const values = sorted.map((item, index) => {
-            return 100 - (index * 10); // Worst gets 100, next gets 90, etc.
+            return 100 - (index * 15); // Worst gets 100, next gets 85, etc.
           });
 
           setChartData({
@@ -211,9 +189,9 @@ const VerticalBarChart = ({
           label: (context) => {
             const originalData = sortedData[context.dataIndex];
             if (originalData) {
-              return `${context.label}: ${originalData.displayValue}% completion (Rank: ${context.dataIndex + 1})`;
+              return `${context.label}: ${originalData.workNotDone}% work not done`;
             }
-            return `${context.label}: Rank ${context.dataIndex + 1}`;
+            return `${context.label}`;
           },
         },
       },

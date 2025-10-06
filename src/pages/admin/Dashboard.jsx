@@ -338,6 +338,10 @@ const AdminDashboard = () => {
                 List of People ({filteredDashboard.length})
               </h2>
             </div>
+
+
+            
+            
             <div className="relative h-[calc(100vh-300px)] overflow-hidden">
               <div className="absolute inset-0 overflow-y-auto">
                 <EmployeesTable
@@ -361,6 +365,7 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+      
 
       {/* Charts section */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> 
@@ -374,7 +379,7 @@ const AdminDashboard = () => {
 
         {/* Lowest Scores */}
         <div className="bg-white rounded-lg border p-4 sm:p-6 h-96">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Lowest Scores</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Lowest 5 Scores</h2>
           <div className="h-64">
             <VerticalBarChart
               data={lowestScorersData}

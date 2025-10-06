@@ -1,57 +1,3 @@
-
-// const sampleData = [
-//     {
-//         _id: "1",
-//         _rowIndex: 1,
-//         linkWithName: "https://example.com/image1.jpg,John Doe",
-//         _imageUrl: "https://example.com/image1.jpg",
-//         _userName: "John Doe",
-//         _combinedValue: "https://example.com/image1.jpg,John Doe",
-//         target: "100",
-//         actualWorkDone: "85",
-//         workNotDone: "15%",
-//         workNotDoneOnTime: "25%",
-//         totalWorkDone: "85",
-//         weekPending: "15",
-//         plannedWorkNotDone: "10%",
-//         plannedWorkNotDoneOnTime: "20%",
-//         nextWeekCommitment: "Complete remaining tasks"
-//     },
-//     {
-//         _id: "2",
-//         _rowIndex: 2,
-//         linkWithName: "Jane Smith",
-//         _imageUrl: "",
-//         _userName: "Jane Smith",
-//         _combinedValue: "Jane Smith",
-//         target: "120",
-//         actualWorkDone: "110",
-//         workNotDone: "8%",
-//         workNotDoneOnTime: "12%",
-//         totalWorkDone: "110",
-//         weekPending: "10",
-//         plannedWorkNotDone: "5%",
-//         plannedWorkNotDoneOnTime: "8%",
-//         nextWeekCommitment: "Focus on quality improvement"
-//     },
-//     {
-//         _id: "3",
-//         _rowIndex: 3,
-//         linkWithName: "Mike Johnson",
-//         _imageUrl: "",
-//         _userName: "Mike Johnson",
-//         _combinedValue: "Mike Johnson",
-//         target: "90",
-//         actualWorkDone: "75",
-//         workNotDone: "17%",
-//         workNotDoneOnTime: "30%",
-//         totalWorkDone: "75",
-//         weekPending: "15",
-//         plannedWorkNotDone: "12%",
-//         plannedWorkNotDoneOnTime: "15%",
-//         nextWeekCommitment: "Prioritize pending items"
-//     }
-// ];
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { User } from "lucide-react";
@@ -121,9 +67,9 @@ const ImgWithFallback = ({ src, alt, name, fallbackElement, className }) => {
     );
 };
 
-const HistoryCommitment = () => {
-    const [dashboardTasks, setDashboardTasks] = useState([]);
-    const [dashboardHeaders, setDashboardHeaders] = useState([]);
+const HistoryRecords = () => {
+    const [historyTasks, setHistoryTasks] = useState([]);
+    const [historyHeaders, setHistoryHeaders] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterType, setFilterType] = useState("linkWithName");
     const [filterValue, setFilterValue] = useState("");
@@ -133,83 +79,28 @@ const HistoryCommitment = () => {
 
     const SPREADSHEET_ID = "1Qzzb5c26yWJdEpsSKXLgqcrwcxehmDhHBdldBETHKpY";
 
-    // Sample data for demonstration
-    const sampleData = [
-        {
-            _id: "1",
-            _rowIndex: 1,
-            linkWithName: "https://example.com/image1.jpg,John Doe",
-            _imageUrl: "https://example.com/image1.jpg",
-            _userName: "John Doe",
-            _combinedValue: "https://example.com/image1.jpg,John Doe",
-            target: "100",
-            actualWorkDone: "85",
-            workNotDone: "15%",
-            workNotDoneOnTime: "25%",
-            totalWorkDone: "85",
-            weekPending: "15",
-            plannedWorkNotDone: "10%",
-            plannedWorkNotDoneOnTime: "20%",
-            nextWeekCommitment: "Complete remaining tasks"
-        },
-        {
-            _id: "2",
-            _rowIndex: 2,
-            linkWithName: "Jane Smith",
-            _imageUrl: "",
-            _userName: "Jane Smith",
-            _combinedValue: "Jane Smith",
-            target: "120",
-            actualWorkDone: "110",
-            workNotDone: "8%",
-            workNotDoneOnTime: "12%",
-            totalWorkDone: "110",
-            weekPending: "10",
-            plannedWorkNotDone: "5%",
-            plannedWorkNotDoneOnTime: "8%",
-            nextWeekCommitment: "Focus on quality improvement"
-        },
-        {
-            _id: "3",
-            _rowIndex: 3,
-            linkWithName: "Mike Johnson",
-            _imageUrl: "",
-            _userName: "Mike Johnson",
-            _combinedValue: "Mike Johnson",
-            target: "90",
-            actualWorkDone: "75",
-            workNotDone: "17%",
-            workNotDoneOnTime: "30%",
-            totalWorkDone: "75",
-            weekPending: "15",
-            plannedWorkNotDone: "12%",
-            plannedWorkNotDoneOnTime: "15%",
-            nextWeekCommitment: "Prioritize pending items"
-        }
-    ];
+    // Helper function for column widths
+    const getColumnWidth = (label) => {
+        const lowerLabel = label.toLowerCase();
+        if (lowerLabel.includes('employee') || lowerLabel.includes('name')) return "200px";
+        if (lowerLabel.includes('date')) return "140px";
+        if (lowerLabel.includes('description') || lowerLabel.includes('comment')) return "250px";
+        if (lowerLabel.includes('target') || lowerLabel.includes('actual')) return "120px";
+        if (lowerLabel.includes('status')) return "120px";
+        if (lowerLabel.includes('experience')) return "150px";
+        if (lowerLabel.includes('post') || lowerLabel.includes('number')) return "130px";
+        return "150px";
+    };
 
-    // Column mapping with optimized widths
-    const COLUMN_MAPPING = [
-        { index: 13, label: "Employee", key: "linkWithName", width: "200px" },
-        { index: 3, label: "Target", key: "target", width: "120px" },
-        { index: 4, label: "Actual Work Done", key: "actualWorkDone", width: "150px" },
-        { index: 5, label: "% Work Not Done", key: "workNotDone", width: "140px" },
-        { index: 6, label: "% Work Not Done On Time", key: "workNotDoneOnTime", width: "180px" },
-        { index: 7, label: "Total Work Done", key: "totalWorkDone", width: "150px" },
-        { index: 8, label: "Week Pending", key: "weekPending", width: "130px" },
-        { index: 10, label: "Planned % Work Not Done", key: "plannedWorkNotDone", width: "180px" },
-        { index: 11, label: "Planned % Work Not Done On Time", key: "plannedWorkNotDoneOnTime", width: "220px" },
-        { index: 14, label: "Next Week Commitment", key: "nextWeekCommitment", width: "180px" },
-    ];
-
-    const fetchDashboardData = async () => {
+    const fetchHistoryData = async () => {
         try {
             setIsLoading(true);
             setError(null);
 
             const response = await fetch(
-                `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=For Records`
+                `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Records`
             );
+            
             const text = await response.text();
             const jsonStart = text.indexOf("{");
             const jsonEnd = text.lastIndexOf("}");
@@ -219,63 +110,111 @@ const HistoryCommitment = () => {
                 throw new Error("No table data found");
             }
 
-            const headers = COLUMN_MAPPING.map(col => ({
+         // Dynamic column mapping - exclude linkWithName column
+const dynamicMapping = data.table.cols
+    .filter(col => !col.label.toLowerCase().includes('link') || !col.label.toLowerCase().includes('name'))
+    .map((col, index) => {
+        // Find original index for correct data mapping
+        const originalIndex = data.table.cols.findIndex(originalCol => originalCol.id === col.id);
+        return {
+            index: originalIndex,
+            label: col.label,
+            key: col.label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
+            width: getColumnWidth(col.label)
+        };
+    });
+
+
+            console.log("Available columns:", dynamicMapping);
+
+            const headers = dynamicMapping.map(col => ({
                 id: col.key,
                 label: col.label,
                 width: col.width
             }));
 
-            const fmsItems = data.table.rows.map((row, i) => {
+            const historyItems = data.table.rows.map((row, i) => {
                 const item = {
                     _id: `${i}-${Math.random().toString(36).substr(2, 9)}`,
                     _rowIndex: i + 1
                 };
 
                 if (row.c) {
-                    COLUMN_MAPPING.forEach(col => {
+                    dynamicMapping.forEach(col => {
                         const cell = row.c[col.index];
                         let value = cell?.v ?? cell?.f ?? "";
 
-                        if (col.key === "workNotDone" || col.key === "workNotDoneOnTime" ||
-                            col.key === "plannedWorkNotDone" || col.key === "plannedWorkNotDoneOnTime") {
-                            value = value ? `${value}` : "";
-                        }
+                     // Format date values
+if (col.label.toLowerCase().includes('date') && value) {
+    if (typeof value === 'string' && value.startsWith('Date(')) {
+        try {
+            const match = value.match(/Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)/);
+            if (match) {
+                const [, year, month, day, hour = 0, minute = 0, second = 0] = match;
+                const date = new Date(year, month, day, hour, minute, second);
+                value = date.toLocaleDateString();
+            }
+        } catch (e) {
+            console.error('Date parsing error:', e);
+        }
+    }
+}
+
+// Add percentage symbol and handle empty values
+if (col.label.includes('% Work Not Done')) {
+    if (!value || value === "" || value === null || value === undefined) {
+        value = "0%";
+    } else if (!String(value).includes('%')) {
+        value = value + '%';
+    }
+}
+
+item[col.key] = value;
+
 
                         item[col.key] = value;
                     });
 
-                    // Process employee data similar to pending tasks
-                    const rawValue = String(item.linkWithName || "").replace(/^"|"$/g, "");
-                    let imageUrl = "";
-                    let userName = "";
+                    // Find employee column and process it
+                    const employeeCol = dynamicMapping.find(col => 
+                        col.label.toLowerCase().includes('employee') || 
+                        col.label.toLowerCase().includes('name') ||
+                        col.key.includes('name')
+                    );
 
-                    if (rawValue.includes(",")) {
-                        const parts = rawValue.split(/,(.+)/);
-                        imageUrl = parts[0]?.trim() || "";
-                        userName = parts[1]?.trim() || "";
-                    } else if (rawValue.startsWith("http")) {
-                        imageUrl = rawValue.trim();
-                        userName = "";
-                    } else {
-                        imageUrl = "";
-                        userName = rawValue.trim();
+                    if (employeeCol) {
+                        const rawValue = String(item[employeeCol.key] || "");
+                        let imageUrl = "";
+                        let userName = "";
+
+                        if (rawValue.includes(",")) {
+                            const parts = rawValue.split(/,(.+)/);
+                            imageUrl = parts[0]?.trim() || "";
+                            userName = parts[1]?.trim() || "";
+                        } else if (rawValue.startsWith("http")) {
+                            imageUrl = rawValue.trim();
+                            userName = "";
+                        } else {
+                            imageUrl = "";
+                            userName = rawValue.trim();
+                        }
+
+                        item._imageUrl = imageUrl;
+                        item._userName = userName || "User";
+                        item._combinedValue = userName ? `${imageUrl},${userName}` : imageUrl || userName;
+                        item.linkWithName = rawValue;
                     }
-
-                    item._imageUrl = imageUrl;
-                    item._userName = userName || "User";
-                    item._combinedValue = userName ? `${imageUrl},${userName}` : imageUrl || userName;
                 }
                 return item;
             });
 
-            // Filter out empty records
-            const filteredItems = fmsItems.filter((item) =>
+            const filteredItems = historyItems.filter((item) =>
                 Object.values(item).some(value => value && String(value).trim() !== "" && !String(value).startsWith("_"))
             );
 
-            setDashboardHeaders(headers);
-            setDashboardTasks(filteredItems);
-            toast.success(`Fetched ${filteredItems.length} employee records`);
+            setHistoryHeaders(headers);
+            setHistoryTasks(filteredItems);
+            toast.success(`Fetched ${filteredItems.length} history records`);
         } catch (err) {
             setError(err.message);
             toast.error(`Failed to load data: ${err.message}`);
@@ -285,14 +224,14 @@ const HistoryCommitment = () => {
     };
 
     useEffect(() => {
-        fetchDashboardData();
+        fetchHistoryData();
     }, []);
 
     // Get unique employee names with images for dropdown
     const getEmployeeNamesWithImages = () => {
         const employeeMap = new Map();
 
-        dashboardTasks.forEach((item) => {
+        historyTasks.forEach((item) => {
             const combinedValue = item._combinedValue;
             if (combinedValue && combinedValue.trim() !== "") {
                 if (!combinedValue.includes("undefined") && !combinedValue.includes("null")) {
@@ -312,20 +251,8 @@ const HistoryCommitment = () => {
         );
     };
 
-    // Get unique targets for filter
-    const getTargets = () => {
-        const targets = new Set();
-        dashboardTasks.forEach((item) => {
-            const target = String(item.target || "").trim();
-            if (target !== "" && target !== "0") {
-                targets.add(target);
-            }
-        });
-        return Array.from(targets).sort();
-    };
-
     // Filter tasks based on search and filters
-    const filteredTasks = dashboardTasks.filter((item) => {
+    const filteredTasks = historyTasks.filter((item) => {
         const term = searchTerm.toLowerCase();
         const matchesSearch = Object.values(item).some(value =>
             String(value || "").toLowerCase().includes(term)
@@ -335,8 +262,6 @@ const HistoryCommitment = () => {
         if (filterValue) {
             if (filterType === "linkWithName") {
                 matchesFilter = item._combinedValue === filterValue;
-            } else if (filterType === "target") {
-                matchesFilter = item.target === filterValue;
             }
         }
 
@@ -358,7 +283,7 @@ const HistoryCommitment = () => {
             <div className="space-y-4" style={{ height: "calc(100vh - 90px)", marginTop: "-40px" }}>
                 <div className="bg-white rounded-lg border shadow-sm p-6 text-center">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-4"></div>
-                    <p className="text-slate-600 font-medium">Loading Employee Records...</p>
+                    <p className="text-slate-600 font-medium">Loading History Records...</p>
                 </div>
             </div>
         );
@@ -370,7 +295,7 @@ const HistoryCommitment = () => {
                 <div className="bg-white rounded-lg border shadow-sm p-6 text-center">
                     <p className="text-red-600 font-medium">Error: {error}</p>
                     <button
-                        onClick={fetchDashboardData}
+                        onClick={fetchHistoryData}
                         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                     >
                         Retry
@@ -384,19 +309,19 @@ const HistoryCommitment = () => {
         <div className="space-y-4 w-full" style={{ height: "calc(110vh - 90px)", marginTop: "-40px", width: "100%" }}>
             {/* Header */}
             <div className="flex justify-between items-center pt-2">
-                <h1 className="text-2xl font-bold text-gray-800">Employee Records</h1>
+                <h1 className="text-2xl font-bold text-gray-800">History Records</h1>
                 <div className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
                     {filteredTasks.length} Record{filteredTasks.length !== 1 ? "s" : ""}
                 </div>
             </div>
 
-            {/* Search + Inline Filter */}
+            {/* Search + Filter */}
             <div className="bg-white p-3 rounded border space-y-3 relative">
                 <div className="grid md:grid-cols-2 gap-3">
                     {/* Search Input */}
                     <input
                         type="text"
-                        placeholder="Search employees, targets, commitments..."
+                        placeholder="Search employees, tasks, dates, status..."
                         className="px-3 py-2 border rounded-md w-full focus:ring-green-500 focus:border-green-500"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -504,21 +429,19 @@ const HistoryCommitment = () => {
                     <div className="mb-3">
                         <h2 className="text-lg font-semibold text-gray-800">
                             {filterValue
-                                ? `Showing ${filterType === "target" ? "Target" : "Employee"}: ${selectedEmployee?.displayName || filterValue
-                                }`
-                                : "Employee Performance Data"}
+                                ? `Showing Employee: ${selectedEmployee?.displayName || filterValue}`
+                                : "Historical Task Records"}
                         </h2>
-
                     </div>
 
                     {/* Scrollable table container */}
                     <div className="h-[calc(100vh-270px)] overflow-hidden relative">
                         <div className="absolute inset-0 overflow-auto">
-                            <table className="w-full border-collapse" style={{ minWidth: '1600px' }}>
+                            <table className="w-full border-collapse" style={{ minWidth: '1800px' }}>
                                 {/* Sticky Header */}
                                 <thead className="bg-gray-100 sticky top-0 z-10">
                                     <tr className="border-b-2 border-gray-300">
-                                        {dashboardHeaders.map((header) => (
+                                        {historyHeaders.map((header) => (
                                             <th
                                                 key={header.id}
                                                 className="text-left text-sm font-bold text-gray-800 px-4 py-3 border-r border-gray-300 last:border-r-0 bg-gray-100 align-top"
@@ -531,8 +454,8 @@ const HistoryCommitment = () => {
                                                     verticalAlign: 'top'
                                                 }}
                                             >
-                                                <div
-                                                    className="leading-tight text-center break-words hyphens-auto"
+                                                <div 
+                                                    className="leading-tight text-center break-words hyphens-auto" 
                                                     style={{
                                                         wordBreak: 'break-word',
                                                         overflowWrap: 'break-word',
@@ -551,12 +474,12 @@ const HistoryCommitment = () => {
 
                                 {/* Table Body */}
                                 <tbody>
-                                    {filteredTasks.map((task, rowIndex) => (
+                                    {filteredTasks.map((task) => (
                                         <tr
                                             key={task._id}
                                             className="bg-white hover:bg-blue-50 hover:shadow-sm transition-all duration-200 border-b border-gray-200"
                                         >
-                                            {dashboardHeaders.map((header) => (
+                                            {historyHeaders.map((header) => (
                                                 <td
                                                     key={header.id}
                                                     className="text-sm text-gray-900 px-4 py-3 border-r border-gray-200 last:border-r-0 align-top"
@@ -566,9 +489,9 @@ const HistoryCommitment = () => {
                                                         maxWidth: header.width
                                                     }}
                                                 >
-                                                    {header.id === "linkWithName" && task[header.id] ? (
+                                                                                                       {header.id.includes('name') && header.label.toLowerCase().includes('employee') ? (
                                                         (() => {
-                                                            const cellData = String(task[header.id]).trim();
+                                                            const cellData = String(task[header.id] || "").trim();
 
                                                             if (cellData.includes(',')) {
                                                                 const parts = cellData.split(',');
@@ -577,7 +500,7 @@ const HistoryCommitment = () => {
 
                                                                 if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('https'))) {
                                                                     return (
-                                                                        <div className="flex items-center gap-3 min-w-0">
+                                                                        <div className="flex items-center gap-2 w-full">
                                                                             <ImgWithFallback
                                                                                 src={imageUrl}
                                                                                 alt={name}
@@ -590,14 +513,9 @@ const HistoryCommitment = () => {
                                                                                 }
                                                                             />
                                                                             <span
-                                                                                className="font-medium text-gray-900 break-words min-w-0 leading-tight"
+                                                                                className="font-medium text-gray-900 flex-1 whitespace-nowrap overflow-hidden text-ellipsis"
                                                                                 title={name}
-                                                                                style={{
-                                                                                    wordBreak: 'break-word',
-                                                                                    overflowWrap: 'break-word',
-                                                                                    whiteSpace: 'normal',
-                                                                                    lineHeight: '1.3'
-                                                                                }}
+                                                                                style={{ minWidth: '0' }}
                                                                             >
                                                                                 {name}
                                                                             </span>
@@ -608,19 +526,14 @@ const HistoryCommitment = () => {
 
                                                             const displayName = cellData || "Unknown";
                                                             return (
-                                                                <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="flex items-center gap-2 w-full">
                                                                     <div className="w-9 h-9 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0 shadow-sm">
                                                                         {displayName.charAt(0).toUpperCase()}
                                                                     </div>
                                                                     <span
-                                                                        className="font-medium text-gray-900 break-words min-w-0 leading-tight"
+                                                                        className="font-medium text-gray-900 flex-1 whitespace-nowrap overflow-hidden text-ellipsis"
                                                                         title={displayName}
-                                                                        style={{
-                                                                            wordBreak: 'break-word',
-                                                                            overflowWrap: 'break-word',
-                                                                            whiteSpace: 'normal',
-                                                                            lineHeight: '1.3'
-                                                                        }}
+                                                                        style={{ minWidth: '0' }}
                                                                     >
                                                                         {displayName}
                                                                     </span>
@@ -628,13 +541,17 @@ const HistoryCommitment = () => {
                                                             );
                                                         })()
                                                     ) : (
+
                                                         <div
                                                             className="truncate pr-2"
                                                             title={task[header.id] || ""}
                                                         >
                                                             <span className={`
                                                                 ${task[header.id] ? 'text-gray-900' : 'text-gray-400'}
-                                                                ${header.id.includes('percentage') || header.id.includes('Work') ? 'font-medium' : ''}
+                                                                ${header.id.toLowerCase().includes('status') ? 'font-medium px-2 py-1 rounded-full text-xs ' + 
+                                                                    (String(task[header.id]).toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
+                                                                     String(task[header.id]).toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                                     String(task[header.id]).toLowerCase().includes('progress') ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') : ''}
                                                             `}>
                                                                 {task[header.id] || "0"}
                                                             </span>
@@ -655,7 +572,7 @@ const HistoryCommitment = () => {
                         <User size={48} className="mx-auto" />
                     </div>
                     <p className="text-gray-500 text-lg">
-                        {searchTerm || filterValue ? "No records match your current filters." : "No data found"}
+                        {searchTerm || filterValue ? "No records match your current filters." : "No history data found"}
                     </p>
                     <p className="text-gray-400 text-sm mt-2">
                         {searchTerm || filterValue ? "Try adjusting your search or filter criteria." : "Please check your data source"}
@@ -718,4 +635,4 @@ const HistoryCommitment = () => {
     );
 };
 
-export default HistoryCommitment;
+export default HistoryRecords;
