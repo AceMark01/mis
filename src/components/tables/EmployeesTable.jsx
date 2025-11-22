@@ -85,7 +85,7 @@ const EmployeesTable = ({ filterTasks, dynamicHeaders }) => {
 
   const filteredHeaders = dynamicHeaders.filter(
     (header) =>
-      header.label.toLowerCase() !== "name" &&
+      
       header.label.toLowerCase() !== "commitment weekly score"
   );
 
@@ -361,6 +361,7 @@ const EmployeesTable = ({ filterTasks, dynamicHeaders }) => {
                       {header.label}
                     </div>
                   </th>
+                  
                 ))}
                 <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-600 uppercase tracking-wider min-w-40">
                   <div className="leading-tight">
@@ -400,7 +401,7 @@ const EmployeesTable = ({ filterTasks, dynamicHeaders }) => {
                                   </div>
                                 }
                               />
-                              <span className="text-sm font-medium">{item._userName}</span>
+                             
                             </div>
                           </td>
                         );
