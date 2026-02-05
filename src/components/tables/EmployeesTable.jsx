@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { User } from "react-feather";
+import { User, Download, ExternalLink } from "react-feather";
 
 const ImgWithFallback = ({ src, alt, name, fallbackElement, className }) => {
   const [imgSrc, setImgSrc] = useState("");
@@ -65,6 +65,24 @@ const ImgWithFallback = ({ src, alt, name, fallbackElement, className }) => {
       referrerPolicy="no-referrer"
     />
   );
+};
+
+const isValidUrl = (string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+const isImageUrl = (url) => {
+  if (!url || !isValidUrl(url)) return false;
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff'];
+  const lowerUrl = url.toLowerCase();
+  return imageExtensions.some(ext => lowerUrl.includes(ext)) || 
+         lowerUrl.includes('drive.google.com') ||
+         lowerUrl.includes('googleapis.com');
 };
 
 const EmployeesTable = ({ filterTasks, dynamicHeaders }) => {
@@ -403,6 +421,55 @@ const EmployeesTable = ({ filterTasks, dynamicHeaders }) => {
                               />
                              
                             </div>
+                          </td>
+                        );
+                      }
+
+                      // Handle COL15 as image link
+                      if (header.id === "col15") {
+                        const cellValue = item[header.id];
+                        if (cellValue && isImageUrl(cellValue)) {
+                          return (
+                            <td key={header.id} className="px-4 py-2">
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={cellValue}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-block hover:opacity-80 transition-opacity"
+                                  title={cellValue}
+                                >
+                                  <ImgWithFallback
+                                    src={cellValue}
+                                    alt="COL15 Image"
+                                    className="w-12 h-12 rounded-md border border-gray-200 hover:border-blue-400 cursor-pointer"
+                                    fallbackElement={
+                                      <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center border border-gray-200">
+                                        <ExternalLink size={16} className="text-gray-400" />
+                                      </div>
+                                    }
+                                  />
+                                </a>
+                              </div>
+                            </td>
+                          );
+                        }
+                        // If not an image URL, display as regular text with link
+                        return (
+                          <td key={header.id} className="px-4 py-2">
+                            {cellValue && isValidUrl(cellValue) ? (
+                              <a
+                                href={cellValue}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
+                              >
+                                <span className="text-sm truncate">{new URL(cellValue).hostname}</span>
+                                <ExternalLink size={14} />
+                              </a>
+                            ) : (
+                              <span className="text-sm text-gray-700">{cellValue || "-"}</span>
+                            )}
                           </td>
                         );
                       }

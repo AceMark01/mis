@@ -42,14 +42,25 @@ const AdminDashboard = () => {
 
 
   // Configuration constants
-  const DISPLAY_COLUMNS = [
-    "col13", "col2", "col3", "col4", "col5", "col6", "col7",
-    "col8", "col9", "col10", "col11", "col12", "col15"
+  // const DISPLAY_COLUMNS = [
+  //   "col13", "col2", "col3", "col4", "col5", "col6", "col7",
+  //   "col8", "col9", "col10", "col11", "col12", "col15"
+  // ];
+
+    const DISPLAY_COLUMNS = [
+    "col15", "col2", "col3", "col4", "col5", "col6", "col7",
+    "col8", "col9", "col10", "col11", "col12", 
   ];
+
+
+  
   const ALLOWED_COLUMNS = [
     "col13", "col2", "col3", "col4", "col5", "col6", "col7",
     "col8", "col9", "col10", "col11", "col12", "col14", "col15"
   ];
+
+
+  
   const SPREADSHEET_ID = "1Qzzb5c26yWJdEpsSKXLgqcrwcxehmDhHBdldBETHKpY";
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytIRV-DZXklx1lhpszAvIEWd1rmNjN9U5M1UmAfK8r2XiDi646W2fVYLS__3DS2aa8_w/exec";
   const DEPARTMENT_CHART_ID = "1932717403";
@@ -95,6 +106,8 @@ const AdminDashboard = () => {
   };
 
   // Fetch dashboard data from Google Sheets
+
+  
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
